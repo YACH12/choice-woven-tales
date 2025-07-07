@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { storyData, type StoryPath } from "@/data/storyData";
-import { BookOpen, RotateCcw, Save, Sparkles } from "lucide-react";
+import { allStories, getStoryById, type StoryPath, type Story } from "@/data/storyData";
+import { BookOpen, RotateCcw, Save, Sparkles, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export const StoryInterface = () => {
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
   const [currentStepId, setCurrentStepId] = useState("start");
   const [storyPath, setStoryPath] = useState<StoryPath[]>([]);
   const [isComplete, setIsComplete] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const currentStep = storyData[currentStepId];
+  const selectedStory = selectedStoryId ? getStoryById(selectedStoryId) : null;
+  const currentStep = selectedStory?.steps[currentStepId];
 
   useEffect(() => {
     if (currentStep?.isEnding) {
@@ -19,8 +21,16 @@ export const StoryInterface = () => {
     }
   }, [currentStep]);
 
+  const handleStorySelect = (storyId: string) => {
+    setSelectedStoryId(storyId);
+    setCurrentStepId("start");
+    setStoryPath([]);
+    setIsComplete(false);
+    setIsAnimating(false);
+  };
+
   const handleChoice = (choiceId: string, choiceText: string, nextStepId: string) => {
-    if (isAnimating) return;
+    if (isAnimating || !selectedStory) return;
     
     setIsAnimating(true);
     
@@ -49,14 +59,25 @@ export const StoryInterface = () => {
     });
   };
 
+  const goBackToSelection = () => {
+    setSelectedStoryId(null);
+    setCurrentStepId("start");
+    setStoryPath([]);
+    setIsComplete(false);
+    setIsAnimating(false);
+  };
+
   const saveStory = () => {
+    if (!selectedStory) return;
+    
     const savedStories = JSON.parse(localStorage.getItem("savedStories") || "[]");
     const newStory = {
       id: Date.now(),
       date: new Date().toLocaleString(),
+      storyTitle: selectedStory.title,
       path: storyPath,
       finalStep: currentStep,
-      title: `Adventure #${savedStories.length + 1}`
+      title: `${selectedStory.title} - Adventure #${savedStories.length + 1}`
     };
     
     savedStories.push(newStory);
@@ -68,27 +89,94 @@ export const StoryInterface = () => {
     });
   };
 
-  if (isComplete) {
+  // Story Selection Screen
+  if (!selectedStoryId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-story via-story-parchment to-story p-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12 pt-8">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <Sparkles className="w-10 h-10 text-primary" />
+              <h1 className="text-5xl font-bold text-story-text">Tale Weaver</h1>
+              <Sparkles className="w-10 h-10 text-primary" />
+            </div>
+            <p className="text-story-text/70 text-xl mb-4">Choose Your Adventure</p>
+            <p className="text-story-text/60 text-lg">20 unique stories await your choices</p>
+          </div>
+
+          {/* Story Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {allStories.map((story) => (
+              <Card
+                key={story.id}
+                className="p-6 bg-story-parchment border-border shadow-story hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105"
+                onClick={() => handleStorySelect(story.id)}
+              >
+                <div className="text-center space-y-4">
+                  <div className="text-4xl mb-3">{story.emoji}</div>
+                  <h3 className="text-xl font-bold text-story-text group-hover:text-primary transition-colors">
+                    {story.title}
+                  </h3>
+                  <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
+                    {story.theme}
+                  </div>
+                  <p className="text-story-text/70 text-sm leading-relaxed">
+                    {story.description}
+                  </p>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center">
+            <p className="text-story-text/60">
+              Each story features multiple branching paths with unique endings.
+              <br />
+              Your choices determine the outcome of your adventure.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Story Complete Screen
+  if (isComplete && selectedStory && currentStep) {
     return <CompletedStory 
+      story={selectedStory}
       storyPath={storyPath} 
       finalStep={currentStep} 
       onStartOver={startOver}
       onSaveStory={saveStory}
+      onBackToSelection={goBackToSelection}
     />;
   }
+
+  // Active Story Screen
+  if (!currentStep || !selectedStory) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-story via-story-parchment to-story p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold text-story-text">Tale Weaver</h1>
-            <Sparkles className="w-8 h-8 text-primary" />
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Button
+              variant="story"
+              size="sm"
+              onClick={goBackToSelection}
+              className="absolute left-4 top-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              All Stories
+            </Button>
+            <div className="text-2xl">{selectedStory.emoji}</div>
+            <h1 className="text-3xl font-bold text-story-text">{selectedStory.title}</h1>
           </div>
-          <p className="text-story-text/70 text-lg">Your choices shape the story</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
+          <p className="text-story-text/70 text-lg mb-4">{selectedStory.description}</p>
+          <div className="flex items-center justify-center gap-2">
             <div className="text-sm text-story-text/60">
               Step {storyPath.length + 1} of 7
             </div>
@@ -152,23 +240,35 @@ export const StoryInterface = () => {
 };
 
 interface CompletedStoryProps {
+  story: Story;
   storyPath: StoryPath[];
   finalStep: any;
   onStartOver: () => void;
   onSaveStory: () => void;
+  onBackToSelection: () => void;
 }
 
-const CompletedStory = ({ storyPath, finalStep, onStartOver, onSaveStory }: CompletedStoryProps) => {
+const CompletedStory = ({ story, storyPath, finalStep, onStartOver, onSaveStory, onBackToSelection }: CompletedStoryProps) => {
   return (
     <div className="min-h-screen bg-gradient-book p-4">
       <div className="max-w-4xl mx-auto">
         {/* Book Header */}
         <div className="text-center mb-12 pt-8">
+          <Button
+            variant="story"
+            size="sm"
+            onClick={onBackToSelection}
+            className="absolute left-4 top-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            All Stories
+          </Button>
           <div className="flex items-center justify-center gap-2 mb-4">
             <BookOpen className="w-10 h-10 text-primary" />
-            <h1 className="text-5xl font-bold text-story-text">Your Story</h1>
+            <h1 className="text-4xl font-bold text-story-text">{story.title}</h1>
+            <div className="text-3xl">{story.emoji}</div>
           </div>
-          <p className="text-story-text/70 text-xl">A tale of choices and consequences</p>
+          <p className="text-story-text/70 text-xl">Your completed adventure</p>
         </div>
 
         {/* Story Book */}
@@ -180,7 +280,7 @@ const CompletedStory = ({ storyPath, finalStep, onStartOver, onSaveStory }: Comp
                 Your Journey
               </h2>
               {storyPath.map((path, index) => {
-                const step = storyData[path.stepId];
+                const step = story.steps[path.stepId];
                 return (
                   <div key={index} className="space-y-3">
                     <div className="text-story-text/90 leading-relaxed">
@@ -210,11 +310,15 @@ const CompletedStory = ({ storyPath, finalStep, onStartOver, onSaveStory }: Comp
         <div className="flex justify-center gap-6 pb-12">
           <Button variant="story" size="story" onClick={onStartOver}>
             <RotateCcw className="w-5 h-5" />
-            Start New Adventure
+            Replay Story
           </Button>
           <Button variant="book" size="story" onClick={onSaveStory}>
             <Save className="w-5 h-5" />
             Save Story
+          </Button>
+          <Button variant="choice" size="story" onClick={onBackToSelection}>
+            <Sparkles className="w-5 h-5" />
+            Try Another Story
           </Button>
         </div>
       </div>
