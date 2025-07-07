@@ -2,39 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Story-themed design system for immersive reading experience */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Warm, book-like color palette */
+    --background: 45 15% 97%;
+    --foreground: 30 15% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 45 20% 98%;
+    --card-foreground: 30 15% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 45 20% 98%;
+    --popover-foreground: 30 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Rich burgundy for primary actions */
+    --primary: 355 65% 35%;
+    --primary-foreground: 45 15% 97%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Warm secondary tones */
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 30 25% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 40 15% 92%;
+    --muted-foreground: 30 10% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Golden accent for highlights */
+    --accent: 45 85% 70%;
+    --accent-foreground: 30 25% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 45 15% 97%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 20% 85%;
+    --input: 40 20% 85%;
+    --ring: 355 65% 35%;
+
+    /* Story-specific colors */
+    --story-background: 45 25% 96%;
+    --story-text: 30 20% 20%;
+    --choice-hover: 355 65% 45%;
+    --parchment: 45 30% 94%;
+    
+    /* Gradients */
+    --gradient-story: linear-gradient(135deg, hsl(45 25% 96%), hsl(40 20% 92%));
+    --gradient-choice: linear-gradient(135deg, hsl(355 65% 35%), hsl(355 65% 45%));
+    --gradient-book: linear-gradient(180deg, hsl(45 30% 94%), hsl(40 25% 90%));
+    
+    /* Shadows */
+    --shadow-story: 0 8px 32px hsl(30 20% 20% / 0.1);
+    --shadow-choice: 0 4px 16px hsl(355 65% 35% / 0.2);
+    --shadow-book: 0 12px 48px hsl(30 20% 20% / 0.15);
+    
+    /* Animations */
+    --transition-story: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-choice: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --radius: 0.5rem;
 

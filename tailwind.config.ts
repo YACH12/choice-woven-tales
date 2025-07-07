@@ -52,6 +52,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				story: {
+					DEFAULT: 'hsl(var(--story-background))',
+					text: 'hsl(var(--story-text))',
+					parchment: 'hsl(var(--parchment))',
+				},
+				choice: {
+					hover: 'hsl(var(--choice-hover))',
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
